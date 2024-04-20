@@ -30,4 +30,12 @@ public class UserServiceImpl extends AbstractMapService<UserDTO,String>implement
         super.deleteById(username);
 
     }
+
+    @Override
+    public void update(UserDTO object) {
+      super.update(object.getUserName(),object);
+    }
+
+
+
 }
