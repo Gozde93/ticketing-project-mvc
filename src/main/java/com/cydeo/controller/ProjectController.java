@@ -66,7 +66,7 @@ public class ProjectController {
     }
 
     @GetMapping("/update/{projectCode}")
-    public String editProject(@PathVariable("projectCode") String projectCode, Model model) {
+    public String editProject(@PathVariable("projectCode") String projectCode, Model model){
 
         model.addAttribute("project", projectService.findById(projectCode));
         model.addAttribute("managers", userService.findManagers());
@@ -77,13 +77,39 @@ public class ProjectController {
     }
 
     @PostMapping("/update")
-    public String updateProject(@ModelAttribute("project") ProjectDTO project) {
+    public String updateProject(@Valid @ModelAttribute("project") ProjectDTO project, BindingResult bindingResult, Model model) {
 
+        if (bindingResult.hasErrors()) {
+
+            model.addAttribute("managers", userService.findManagers());
+            model.addAttribute("projects", projectService.findAll());
+
+            return "/project/update";
+
+        }
 
         projectService.update(project);
 
         return "redirect:/project/create";
 
+    }
+
+    @GetMapping("/manager/project-status")
+    public String getProjectByManager(Model model) {
+
+        UserDTO manager = userService.findById("john@cydeo.com");
+        List<ProjectDTO> projects = projectService.getCountedListOfProjectDTO(manager);
+
+        model.addAttribute("projects", projects);
+
+        return "/manager/project-status";
+
+    }
+
+    @GetMapping("/manager/complete/{projectCode}")
+    public String managerCompleteProject(@PathVariable("projectCode") String projectCode) {
+        projectService.complete(projectService.findById(projectCode));
+        return "redirect:/project/manager/project-status";
     }
 
 }
